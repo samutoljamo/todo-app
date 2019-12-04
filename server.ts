@@ -20,7 +20,7 @@ app.use(bodyparser.json());
 app.get('/api/list', function(req, res){
     Todo.find({}, function(err, result){
         if(err){
-            return res.json({success:false});
+            return res.status(500).end();
         }
         return res.json(result);
     });
@@ -32,7 +32,7 @@ app.post('/api/list', function(req, res){
     if(req.body.description){
         create.description = req.body.description;
     }else{
-        return res.status(400).json({success: {type: false, message: "You must provide a description"}});
+        return res.status(400).json({message: "You must provide a description"});
     }
     if(req.body.done){
         create.done = req.body.done;
@@ -41,7 +41,7 @@ app.post('/api/list', function(req, res){
     }
     Todo.create(create, function(err, todo){
         if(err){
-            return res.json({success: false});
+            return res.status(500).end();
         }
         return res.status(201).json(todo);
         
@@ -52,9 +52,9 @@ app.post('/api/list', function(req, res){
 app.delete('/api/list/:id', function(req, res){
     Todo.findByIdAndDelete(req.params.id, function(err){
         if(err){
-            return res.json({success: false});
+            return res.status(500).end();
         }
-        return res.json({success: true});
+        return res.status(204).end();
     });
 });
 
@@ -71,7 +71,7 @@ app.patch('/api/list/:id', function(req, res){
         if(err){
             return res.status(500).json({success: false});
         }
-        return res.status(204).json({});
+        return res.status(204).end();
     });
 });
 
