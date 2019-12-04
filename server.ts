@@ -1,18 +1,20 @@
-const express = require('express');
-const bodyparser = require('body-parser');
-const mongoose = require('mongoose');
-const basicauth = require('express-basic-auth');
+import * as express from 'express';
+import * as bodyparser from 'body-parser';
+import * as mongoose from 'mongoose';
+import * as basicauth from 'express-basic-auth';
 
 const MONGO_URL = process.env.MONGODB_URI || "mongodb://localhost/todoapp";
-mongoose.connect(MONGO_URL, {useNewUrlParser:true})
-var Todo = require('./models/Todo');
+mongoose.connect(MONGO_URL, {useNewUrlParser:true, useUnifiedTopology: true})
 
-const PORT = process.env.PORT || 8000;
+import Todo from './models/Todo';
+
+const PORT : number | string = process.env.PORT || 8000;
 const app = express();
 app.use(basicauth({
     users:{'samu': 'superpasswordsecret'}
 }));
 app.use(bodyparser.json());
+
 
 // GET /api/list Lists all todo items
 app.get('/api/list', function(req, res){
@@ -26,7 +28,7 @@ app.get('/api/list', function(req, res){
 
 // POST /api/list Adds a new todo item
 app.post('/api/list', function(req, res){
-    var create = {}
+    var create : any = {}
     if(req.body.description){
         create.description = req.body.description;
     }else{
@@ -58,7 +60,7 @@ app.delete('/api/list/:id', function(req, res){
 
 // PATCH /api/list/:id edits an existing todo item
 app.patch('/api/list/:id', function(req, res){
-    var update = {}
+    var update : any = {};
     if(req.body.description){
         update.description = req.body.description;
     }
@@ -74,6 +76,9 @@ app.patch('/api/list/:id', function(req, res){
 });
 
 
+app.all("*", function(req, res){
+    res.status(404).end();
+});
 
 app.listen(PORT, function(){
     console.log(`App listening on port ${PORT}`);
