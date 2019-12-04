@@ -1,12 +1,16 @@
 const express = require('express');
 const bodyparser = require('body-parser');
 const mongoose = require('mongoose');
+const basicauth = require('express-basic-auth');
 
 mongoose.connect("mongodb://localhost/todoapp", {useNewUrlParser:true})
 var Todo = require('./models/Todo');
 
 const PORT = 8000;
 const app = express();
+app.use(basicauth({
+    users:{'samu': 'superpasswordsecret'}
+}));
 app.use(bodyparser.json());
 
 // GET /api/list Lists all todo items
