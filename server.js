@@ -3,10 +3,11 @@ const bodyparser = require('body-parser');
 const mongoose = require('mongoose');
 const basicauth = require('express-basic-auth');
 
-mongoose.connect("mongodb://localhost/todoapp", {useNewUrlParser:true})
+const MONGO_URL = process.env.MONGODB_URI || "mongodb://localhost/todoapp";
+mongoose.connect(MONGO_URL, {useNewUrlParser:true})
 var Todo = require('./models/Todo');
 
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 const app = express();
 app.use(basicauth({
     users:{'samu': 'superpasswordsecret'}
@@ -29,7 +30,7 @@ app.post('/api/list', function(req, res){
     if(req.body.description){
         create.description = req.body.description;
     }else{
-        return res.json({success: {type: false, message: "You must provide a description"}});
+        return res.status(400).json({success: {type: false, message: "You must provide a description"}});
     }
     if(req.body.done){
         create.done = req.body.done;
@@ -40,7 +41,7 @@ app.post('/api/list', function(req, res){
         if(err){
             return res.json({success: false});
         }
-        return res.json({success: true});
+        return res.status(201).json(todo);
         
     });
 });
@@ -66,9 +67,9 @@ app.patch('/api/list/:id', function(req, res){
     }
     Todo.findByIdAndUpdate(req.params.id, update, function(err, result){
         if(err){
-            return res.json({success: false});
+            return res.status(500).json({success: false});
         }
-        return res.json(result);
+        return res.status(204).json({});
     });
 });
 
