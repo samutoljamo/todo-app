@@ -2,16 +2,23 @@ import * as express from 'express';
 import * as bodyparser from 'body-parser';
 import * as mongoose from 'mongoose';
 import * as basicauth from 'express-basic-auth';
+import * as path from 'path';
 
-const MONGO_URL = process.env.MONGODB_URI || "mongodb://localhost/todoapp";
+const MONGO_URL :string = process.env.MONGODB_URI || "mongodb://localhost/todoapp";
+const DEBUG : boolean = (MONGO_URL === "mongodb://localhost/todoapp") ? true : false;
 mongoose.connect(MONGO_URL, {useNewUrlParser:true, useUnifiedTopology: true})
 
 import Todo from './models/Todo';
 
 const PORT : number | string = process.env.PORT || 8000;
 const app = express();
+if(!DEBUG){
+    app.use('/', express.static(path.join(__dirname, 'client', 'build')));
+}
 app.use(basicauth({
-    users:{'samu': 'superpasswordsecret'}
+    users:{'samu': 'superpasswordsecret'},
+    challenge: true,
+    realm: "my-app"
 }));
 app.use(bodyparser.json());
 
