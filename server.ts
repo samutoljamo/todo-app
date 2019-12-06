@@ -3,10 +3,11 @@ import * as bodyparser from 'body-parser';
 import * as mongoose from 'mongoose';
 import * as basicauth from 'express-basic-auth';
 import * as path from 'path';
+import {ITodo} from "./models/Todo";
 
 const MONGO_URL :string = process.env.MONGODB_URI || "mongodb://localhost/todoapp";
 const DEBUG : boolean = (MONGO_URL === "mongodb://localhost/todoapp") ? true : false;
-mongoose.connect(MONGO_URL, {useNewUrlParser:true, useUnifiedTopology: true})
+mongoose.connect(MONGO_URL, {useNewUrlParser:true, useUnifiedTopology: true});
 
 import Todo from './models/Todo';
 
@@ -25,7 +26,12 @@ app.use(bodyparser.json());
 
 // GET /api/list Lists all todo items
 app.get('/api/list', function(req, res){
-    Todo.find({}, function(err, result){
+    const items : number = req.body.items || 10;
+    var page : number = req.body.page;
+    if (page!==0){
+        page = page || 1;
+    }
+    Todo.find().skip(page * items).limit(items).exec(function(err, result){
         if(err){
             return res.status(500).end();
         }
@@ -54,6 +60,17 @@ app.post('/api/list', function(req, res){
         
     });
 });
+
+// GET /api/list/:id finds and returns an existing todo item
+app.get('/api/list/:id', function(req, res){
+    Todo.findById(req.params.id, function(err, result){
+        if(err){
+            return res.status(404).end();
+        }
+        return res.json(result);
+    });
+});
+
 
 // DELETE /api/list/:id Deletes an existing todo item
 app.delete('/api/list/:id', function(req, res){
