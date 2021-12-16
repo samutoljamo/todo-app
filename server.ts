@@ -3,11 +3,10 @@ import * as bodyparser from 'body-parser';
 import * as mongoose from 'mongoose';
 import * as basicauth from 'express-basic-auth';
 import * as path from 'path';
-import {ITodo} from "./models/Todo";
 
 const MONGO_URL :string = process.env.MONGODB_URI || "mongodb://localhost/todoapp";
 const DEBUG : boolean = (MONGO_URL === "mongodb://localhost/todoapp") ? true : false;
-mongoose.connect(MONGO_URL, {useNewUrlParser:true, useUnifiedTopology: true});
+mongoose.connect(MONGO_URL);
 
 import Todo from './models/Todo';
 
@@ -26,10 +25,10 @@ app.use(bodyparser.json());
 
 // GET /api/list Lists all todo items
 app.get('/api/list', function(req, res){
-    const items : number = req.body.items || 10;
-    var page : number = req.body.page;
-    if (page!==0){
-        page = page || 1;
+    const items : number = req.body.items || 10; // max number of items to return
+    var page : number = req.body.page; // paging starts from 0
+    if (page < 0){
+        page = 0;
     }
     Todo.find().skip(page * items).limit(items).exec(function(err, result){
         if(err){
