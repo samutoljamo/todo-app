@@ -27,7 +27,7 @@ app.use(bodyparser.json());
 app.get('/api/list', function(req, res){
     const items : number = req.body.items || 10; // max number of items to return
     var page : number = req.body.page; // paging starts from 0
-    if (page < 0){
+    if (page < 0 || page===null){
         page = 0;
     }
     Todo.find().skip(page * items).limit(items).exec(function(err, result){
